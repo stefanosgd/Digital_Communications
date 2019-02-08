@@ -18,12 +18,18 @@ def encoding(message, w, l):
                     encoded_message.append(
                         ((i - (len(dictionary) - dictionary[::-1].find(p[:-1][::-1]))), len(p) - 1, message[i]))
                 else:
+                    # print("P" ,len(p))
+                    # print("D",dictionary[::-1].find(p[:-1][::-1]))
+                    #
+                    # print(len(p) + dictionary[::-1].find(p[:-1][::-1]))
                     encoded_message.append(
-                        ((len(p) + dictionary[::-1].find(p[:-1][::-1])), len(p) - 1, message[i]))
+                        ((len(p) + (dictionary[::-1].find(p[:-1][::-1]))-1), len(p) - 1, message[i]))
+                    # return encoded_message
             p = message[i+1]
             dictionary = message[0:i+1]
             if len(dictionary) > window:
-                dictionary = message[i-window:i]
+                dictionary = message[i-window+1:i+1]
+                # print(len(dictionary))
     dictionary = message[0:len(message) - len(p)]
     if len(dictionary) > window:
         dictionary = message[len(dictionary)-window:len(message)-len(p)]
@@ -83,12 +89,15 @@ look = 8
 # compression_rate = size / (len(input_encode)*(wind + look + 1))
 # print("Compression rate = ", compression_rate)
 # print(file_message == output_message)
-file_message, size = read_file('test.txt')
+file_message, size = read_file('test3.txt')
+# file_message = 'ABRACADABRA'
 input_encode = encoding(file_message, wind, look)
 output_message = decoding(input_encode)
-compression_rate = size / (len(input_encode)*(wind + look + 1))
+# compression_rate = size / (len(input_encode)*(wind + look + 1))
 
-print("Compression rate = ", compression_rate)
+# print("Compression rate = ", compression_rate)
 # print(bt(output_message).tobytes().decode('utf-8'))
 # print("blah blah blah blah blah" == output_message)
+print(file_message)
+print(output_message)
 print(file_message == output_message)
