@@ -1,2 +1,2 @@
 # Digital_Communications
-Durham 2nd Year Digital Communications Summative
+Digital Communications assignment Durham 2nd Year
