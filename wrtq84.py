@@ -135,12 +135,14 @@ def decompress(file_name, window, lookahead, save_extension):
     write_file(file_name+'_decompressed', save_extension, bt(output_message_new).tobytes())
 
 
-compress('test.txt', 8, 8)
-compress('test2.txt', 16, 8)
-compress('test3.txt', 16, 8)
-compress('test_image.jpg', 16, 16)
+x = 16
+y = 5
+compress('Tests/test.txt', 16, 8)
+# compress('Tests/test2.txt', 14, 7)
+# compress('Tests/test3.txt', 16, 6)
+# compress('Tests/test_image.jpg', 16, 5)
 
-decompress('test_out', 8, 8, '.txt')
-decompress('test2_out', 16, 8, '.txt')
-decompress('test3_out', 16, 8, '.txt')
-decompress('test_image_out', 16, 16, '.jpg')
+decompress('Tests/test_out', 16, 8, '.txt')
+# decompress('Tests/test2_out', 14, 7, '.txt')
+# decompress('Tests/test3_out', 16, 6, '.txt')
+# decompress('Tests/test_image_out', 16, 5, '.jpg')
