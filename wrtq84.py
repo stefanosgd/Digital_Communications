@@ -1,4 +1,5 @@
 from bitarray import bitarray as bt
+import timeit
 
 
 def appending_bits(back, forward, window, lookahead, message, position, final):
@@ -92,8 +93,7 @@ def convert_to_list(bit_message, w, l):
         converted_list.append((int(bit_message[i:w+i], 2), int(bit_message[w+i:w+l+i], 2), (bit_message[w+l+i])))
         i += w+l+1
     if (i+w+l) == len(bit_message):
-        converted_list.append(
-            (int(bit_message[i:w+i], 2), int(bit_message[w + i:w + l + i], 2), '_'))
+        converted_list.append((int(bit_message[i:w+i], 2), int(bit_message[w + i:w + l + i], 2), '_'))
     elif (i+w+l) > len(bit_message):
         length = len(converted_list)
         converted_list[length-1] = (converted_list[length-1][0], converted_list[length-1][1], '_')
@@ -116,29 +116,38 @@ def write_file(f_name, f_extension, output):
 
 
 def compress(file_name, window, lookahead):
+    start = timeit.default_timer()
     file_message, size = read_file(file_name)
     file_name = file_name.split('.')[0]
     input_encode, bit_encode = encoding(file_message, window, lookahead)
     print("Original: ", size)
     print("Compressed: ", len(input_encode)*(window+lookahead+1))
     write_file(file_name+"_out", '', bt(bit_encode).tobytes())
+    stop = timeit.default_timer()
+    print("Compression took", stop - start, "seconds")
 
 
 def decompress(file_name, window, lookahead, save_extension):
+    start = timeit.default_timer()
     input_again, new_input_size = read_file(file_name)
     input_list_convert = convert_to_list(input_again, window, lookahead)
     output_message_new = decoding(input_list_convert)
     write_file(file_name+'_decompressed', save_extension, bt(output_message_new).tobytes())
+    stop = timeit.default_timer()
+    print("Decompression took", stop - start, "seconds")
 
 
-x = 16
-y = 5
-compress('Tests/test1.txt', 16, 8)
-compress('Tests/test2.txt', 14, 7)
-compress('Tests/test3.txt', 16, 6)
+x = 17
+y = 7
+# compress('Tests/test1.txt', 12, 7)
+# decompress('Tests/test1_out', 12, 7, '.txt')
+# compress('Tests/test2.txt', 14, 7)
+# decompress('Tests/test2_out', 14, 7, '.txt')
+# compress('Tests/test3.txt', 16, 6)
+# decompress('Tests/test3_out', 16, 6, '.txt')
+# compress('Tests/test4.txt', 17, 7)
+# decompress('Tests/test4_out', 17, 7, '.txt')
+# compress('Tests/test5.txt', 19, 7)
+# decompress('Tests/test5_out', 19, 7, '.txt')
 # compress('Tests/test_image.jpg', 16, 5)
-
-decompress('Tests/test1_out', 16, 8, '.txt')
-decompress('Tests/test2_out', 14, 7, '.txt')
-decompress('Tests/test3_out', 16, 6, '.txt')
 # decompress('Tests/test_image_out', 16, 5, '.jpg')
