@@ -1,6 +1,15 @@
 from bitarray import bitarray as bt
 
 
+def appending_bits(back, forward, window, lookahead, message, position, final):
+    encoded_bits = ''
+    encoded_bits += "0" * (window - len("{0:b}".format(back))) + "{0:b}".format(back)
+    encoded_bits += "0" * (lookahead - len("{0:b}".format(forward))) + "{0:b}".format(forward)
+    if not final:
+        encoded_bits += message[position]
+    return encoded_bits
+
+
 def encoding(message, w, l):
     window = 2**w - 1
     lookahead = 2**l - 1
@@ -19,19 +28,13 @@ def encoding(message, w, l):
                 if i < window:
                     step_back = i - (len(dictionary) - dictionary[::-1].find(p[:-1][::-1]))
                     step_length = len(p) - 1
-                    encoded_message.append(
-                        (step_back, step_length, message[i]))
-                    encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-                    encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
-                    encoded_bit_message += message[i]
+                    encoded_message.append((step_back, step_length, message[i]))
+                    encoded_bit_message += appending_bits(step_back, step_length, w, l, message, i, False)
                 else:
                     step_back = len(p) + dictionary[::-1].find(p[:-1][::-1])-1
                     step_length = len(p) - 1
-                    encoded_message.append(
-                        (step_back, step_length, message[i]))
-                    encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-                    encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
-                    encoded_bit_message += message[i]
+                    encoded_message.append((step_back, step_length, message[i]))
+                    encoded_bit_message += appending_bits(step_back, step_length, w, l, message, i, False)
             p = message[i+1]
             dictionary = message[0:i+1]
             if len(dictionary) > window:
@@ -41,37 +44,30 @@ def encoding(message, w, l):
         dictionary = message[len(dictionary)-window:len(message)-len(p)]
     if dictionary.find(p) == -1:
         if len(p) - 1 == 0:
+            encoded_bit_message += "0" * w + "0" * l + p
             encoded_message.append((0, 0, p))
         else:
             if len(message) < window:
                 step_back = len(message) - (len(dictionary) - dictionary[::-1].find(p[:-1][::-1]))
                 step_length = len(p) - 1
-                encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-                encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
-                encoded_bit_message += p[-1]
-                encoded_message.append(
-                    (step_back, step_length, p[-1]))
+                encoded_message.append((step_back, step_length, message[-1]))
+                encoded_bit_message += appending_bits(step_back, step_length, w, l, message, -1, False)
             else:
                 step_back = len(p)-1 + dictionary[::-1].find(p[:-1][::-1])
                 step_length = len(p) - 1
-                encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-                encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
-                encoded_bit_message += p[-1]
-                encoded_message.append(
-                    (step_back, step_length, p[-1]))
+                encoded_message.append((step_back, step_length, message[-1]))
+                encoded_bit_message += appending_bits(step_back, step_length, w, l, message, -1, False)
     else:
         if len(message) < window:
             step_back = len(message) - (len(dictionary) - dictionary[::-1].find(p[::-1]))
             step_length = len(p)
-            encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-            encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
             encoded_message.append((step_back, step_length, '_'))
+            encoded_bit_message += appending_bits(step_back, step_length, w, l, message, 0, True)
         else:
             step_back = len(p) + dictionary[::-1].find(p[::-1])
             step_length = len(p)
-            encoded_bit_message += "0" * (w - len("{0:b}".format(step_back))) + "{0:b}".format(step_back)
-            encoded_bit_message += "0" * (l - len("{0:b}".format(step_length))) + "{0:b}".format(step_length)
-            encoded_message.append(((len(p) + dictionary[::-1].find(p[::-1])), len(p), '_'))
+            encoded_message.append((step_back, step_length, '_'))
+            encoded_bit_message += appending_bits(step_back, step_length, w, l, message, 0, True)
     return encoded_message, encoded_bit_message
 
 
@@ -137,12 +133,12 @@ def decompress(file_name, window, lookahead, save_extension):
 
 x = 16
 y = 5
-compress('Tests/test.txt', 16, 8)
-# compress('Tests/test2.txt', 14, 7)
-# compress('Tests/test3.txt', 16, 6)
+compress('Tests/test1.txt', 16, 8)
+compress('Tests/test2.txt', 14, 7)
+compress('Tests/test3.txt', 16, 6)
 # compress('Tests/test_image.jpg', 16, 5)
 
-decompress('Tests/test_out', 16, 8, '.txt')
-# decompress('Tests/test2_out', 14, 7, '.txt')
-# decompress('Tests/test3_out', 16, 6, '.txt')
+decompress('Tests/test1_out', 16, 8, '.txt')
+decompress('Tests/test2_out', 14, 7, '.txt')
+decompress('Tests/test3_out', 16, 6, '.txt')
 # decompress('Tests/test_image_out', 16, 5, '.jpg')
