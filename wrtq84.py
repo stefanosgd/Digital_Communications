@@ -45,7 +45,8 @@ def encoding(message, w, l):
             encoded_bit_message += appending_bits((len(dictionary) - dictionary.index(p[:-1])), len(p) - 1, w, l)
             encoded_bit_message += p[-1]
     else:
-        encoded_bit_message += appending_bits((len(dictionary) - dictionary.index(p[:-1])), len(p), w, l)
+        encoded_bit_message += appending_bits((len(dictionary) - dictionary.index(p)), len(p), w, l)
+        encoded_bit_message += '11'
     return encoded_bit_message
 
 
@@ -65,14 +66,12 @@ def decoding(encoded):
 
 def convert_to_list(bit_message, w, l):
     converted_list = []
-    i = 0
-    while i < len(bit_message)-(w+l):
-        converted_list.append((int(bit_message[i:w+i], 2), int(bit_message[w+i:w+l+i], 2), (bit_message[w+l+i])))
-        i += w+l+1
-    if (i+w+l) == len(bit_message):
-        converted_list.append((int(bit_message[i:w+i], 2), int(bit_message[w+i:w+l+i], 2), '_'))
-    elif (i+w+l) > len(bit_message):
-        converted_list[-1] = (converted_list[-1][0], converted_list[-1][1], '_')
+    bit_list = [bit_message[i:i + w+l+1] for i in range(0, len(bit_message), w+l+1)]
+    for i in bit_list:
+        if len(i) == w+l+1:
+            converted_list.append((int(i[0:w], 2), int(i[w:w+l], 2), (i[-1])))
+        elif converted_list[-1][2] == '1' and i[0] == '1':
+            converted_list[-1] = (converted_list[-1][0], converted_list[-1][1], '_')
     return converted_list
 
 
@@ -114,9 +113,12 @@ def decompress(file_name, window, lookahead, save_extension):
     print("Decompression took", stop - start, "seconds")
 
 
+# compress('Tests/test1.txt', 2, 2)
+# decompress('Tests/test1_out', 2, 2, '.txt')
+
 print("Test 1")
-compress('Tests/test1.txt', 12, 7)
-decompress('Tests/test1_out', 12, 7, '.txt')
+compress('Tests/test1.txt', 12, 6)
+decompress('Tests/test1_out', 12, 6, '.txt')
 print("Test 2")
 compress('Tests/test2.txt', 14, 7)
 decompress('Tests/test2_out', 14, 7, '.txt')
@@ -132,6 +134,6 @@ decompress('Tests/test5_out', 19, 7, '.txt')
 # print("Test 6")
 # compress('Tests/test6.txt', 16, 7)
 # decompress('Tests/test6_out', 16, 7, '.txt')
-# print("Test Image")
-# compress('Tests/test_image.jpg', 16, 5)
-# decompress('Tests/test_image_out', 16, 5, '.jpg')
+print("Test Image")
+compress('Tests/test_image.jpg', 16, 5)
+decompress('Tests/test_image_out', 16, 5, '.jpg')
