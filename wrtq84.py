@@ -4,8 +4,8 @@ import timeit
 
 def appending_bits(back, forward, window, lookahead):
     encoded_bits = ''
-    encoded_bits += "0" * (window - len("{0:b}".format(back))) + "{0:b}".format(back)
-    encoded_bits += "0" * (lookahead - len("{0:b}".format(forward))) + "{0:b}".format(forward)
+    encoded_bits += bin(back)[2:].zfill(window)
+    encoded_bits += bin(forward)[2:].zfill(lookahead)
     return encoded_bits
 
 
@@ -16,13 +16,20 @@ def encoding(message, w, l):
     encoded_bit_message = ''
     p = message[0]
     for i in range(0, len(message)-1):
-        check = dictionary.find(p)
+
+        if len(p) > len(dictionary):
+            check = -1
+        elif p[-1] == dictionary[len(p)-1]:
+            check = 0
+        else:
+            check = dictionary.find(p)
+
         if (check != -1) and (len(p) < lookahead):
             dictionary = dictionary[check:]
             p = p+message[i+1]
         else:
             if len(p)-1 == 0:
-                encoded_bit_message += "0"*w + "0"*l + message[i]
+                encoded_bit_message += message[i].zfill(w+l+1)
             else:
                 encoded_bit_message += appending_bits(len(dictionary), len(p) - 1, w, l)
                 encoded_bit_message += message[i]
@@ -110,13 +117,15 @@ def decompress(file_name, window, lookahead, save_extension):
 
 compress('Tests/test1.txt', 16, 7)
 decompress('Tests/test1_out', 16, 7, '.txt')
-compress('Tests/test2.txt', 14, 7)
-decompress('Tests/test2_out', 14, 7, '.txt')
-compress('Tests/test3.txt', 16, 7)
-decompress('Tests/test3_out', 16, 7, '.txt')
-compress('Tests/test4.txt', 17, 7)
-decompress('Tests/test4_out', 17, 7, '.txt')
+# compress('Tests/test2.txt', 14, 7)
+# decompress('Tests/test2_out', 14, 7, '.txt')
+# compress('Tests/test3.txt', 16, 7)
+# decompress('Tests/test3_out', 16, 7, '.txt')
+# compress('Tests/test4.txt', 17, 7)
+# decompress('Tests/test4_out', 17, 7, '.txt')
 compress('Tests/test5.txt', 19, 7)
 decompress('Tests/test5_out', 19, 7, '.txt')
+# compress('Tests/test6.txt', 16, 8)
+# decompress('Tests/test6_out', 16, 8, '.txt')
 # compress('Tests/test_image.jpg', 16, 5)
 # decompress('Tests/test_image_out', 16, 5, '.jpg')
