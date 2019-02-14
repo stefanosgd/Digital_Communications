@@ -1,5 +1,15 @@
 from bitarray import bitarray as bt
 import timeit
+import sys
+
+
+def main():
+    input_file = sys.argv[1]
+    input_window = int(sys.argv[2])
+    input_lookahead = int(sys.argv[3])
+    compress(input_file, input_window, input_lookahead)
+    decompress(input_file.split('.')[0] + '_out_' + str(input_window) + '_'
+               + str(input_lookahead)+'.bin', '.'+input_file.split('.')[1])
 
 
 def appending_bits(back, forward, window, lookahead):
@@ -100,40 +110,27 @@ def compress(file_name, window, lookahead):
     print("Original:", size)
     print("Compressed:", len(bit_encode))
     print("Compression rate:", size / len(bit_encode))
-    write_file(file_name+"_out", '', bit_encode)
+    new_file = open("results.txt", "w+")
+    new_file.write(str(size/len(bit_encode)) + "\t" + str(stop-start) + "\t")
+    new_file.close()
+    write_file(file_name+"_out_"+str(window)+"_"+str(lookahead), '.bin', bit_encode)
 
 
-def decompress(file_name, window, lookahead, save_extension):
-    start = timeit.default_timer()
+def decompress(file_name, save_extension):
     input_again, new_input_size = read_file(file_name)
+    file_name = file_name.split('.')[0]
+    window = int(file_name.split('_')[2])
+    lookahead = int(file_name.split('_')[3])
+    start = timeit.default_timer()
     input_list_convert = convert_to_list(input_again, window, lookahead)
     output_message_new = decoding(input_list_convert)
     write_file(file_name+'_decompressed', save_extension, output_message_new)
     stop = timeit.default_timer()
+    new_file = open("results.txt", "a+")
+    new_file.write(str(stop-start) + "\n")
+    new_file.close()
     print("Decompression took", stop - start, "seconds")
 
 
-# compress('Tests/test1.txt', 2, 2)
-# decompress('Tests/test1_out', 2, 2, '.txt')
-
-print("Test 1")
-compress('Tests/test1.txt', 12, 6)
-decompress('Tests/test1_out', 12, 6, '.txt')
-print("Test 2")
-compress('Tests/test2.txt', 14, 7)
-decompress('Tests/test2_out', 14, 7, '.txt')
-print("Test 3")
-compress('Tests/test3.txt', 16, 7)
-decompress('Tests/test3_out', 16, 7, '.txt')
-print("Test 4")
-compress('Tests/test4.txt', 17, 7)
-decompress('Tests/test4_out', 17, 7, '.txt')
-print("Test 5")
-compress('Tests/test5.txt', 19, 7)
-decompress('Tests/test5_out', 19, 7, '.txt')
-# print("Test 6")
-# compress('Tests/test6.txt', 16, 7)
-# decompress('Tests/test6_out', 16, 7, '.txt')
-print("Test Image")
-compress('Tests/test_image.jpg', 16, 5)
-decompress('Tests/test_image_out', 16, 5, '.jpg')
+if __name__ == '__main__':
+    main()
