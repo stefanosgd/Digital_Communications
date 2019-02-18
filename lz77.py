@@ -4,12 +4,19 @@ import sys
 
 
 def main():
-    input_file = sys.argv[1]
-    input_window = int(sys.argv[2])
-    input_lookahead = int(sys.argv[3])
-    compress(input_file, input_window, input_lookahead)
-    decompress(input_file.split('.')[0] + '_out_' + str(input_window) + '_'
-               + str(input_lookahead)+'.bin', '.'+input_file.split('.')[1])
+    if len(sys.argv) != 5:
+        print("You have entered the wrong number of Variables!")
+    else:
+        func = sys.argv[1]
+        input_file = sys.argv[2]
+        input_window = int(sys.argv[3])
+        input_lookahead = int(sys.argv[4])
+        if func == "C":
+            compress(input_file, input_window, input_lookahead)
+        elif func == "D":
+            decompress(input_file, '.'+input_file.split('.')[1])
+        else:
+            print("Invalid function call")
 
 
 def appending_bits(back, forward, window, lookahead):
@@ -103,7 +110,6 @@ def write_file(f_name, f_extension, output):
 def compress(file_name, window, lookahead):
     start = timeit.default_timer()
     file_message, size = read_file(file_name)
-    file_name = file_name.split('.')[0]
     bit_encode = encoding(file_message, window, lookahead)
     stop = timeit.default_timer()
     print("Compression took", stop - start, "seconds")
@@ -113,14 +119,14 @@ def compress(file_name, window, lookahead):
     new_file = open("results.txt", "w+")
     new_file.write(str(size/len(bit_encode)) + "\t" + str(stop-start) + "\t")
     new_file.close()
-    write_file(file_name+"_out_"+str(window)+"_"+str(lookahead), '.bin', bit_encode)
+    write_file(file_name.split('.')[0]+"_"+str(window)+"_"+str(lookahead)+"."+file_name.split('.')[1], '.bin', bit_encode)
 
 
 def decompress(file_name, save_extension):
     input_again, new_input_size = read_file(file_name)
     file_name = file_name.split('.')[0]
-    window = int(file_name.split('_')[2])
-    lookahead = int(file_name.split('_')[3])
+    window = int(file_name.split('_')[1])
+    lookahead = int(file_name.split('_')[2])
     start = timeit.default_timer()
     input_list_convert = convert_to_list(input_again, window, lookahead)
     output_message_new = decoding(input_list_convert)
